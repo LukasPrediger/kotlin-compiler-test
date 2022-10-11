@@ -8,5 +8,7 @@ enum class SyntaxKind {
     PlusToken,
     MinusToken,
     StarToken,
-    SlashToken
+    SlashToken,
+    NumberExpression,
+    BinaryExpression
 }

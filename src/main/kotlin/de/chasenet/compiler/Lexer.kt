@@ -11,24 +11,11 @@ class Lexer(private val line: String) {
     val diagnostics: List<String>
         get() = mutableDiagnostics
 
-    fun parse(): List<SyntaxToken<*>> {
-        val tokens = mutableListOf<SyntaxToken<*>>()
-
-        var token = nextToken()
-        tokens.add(token)
-        while (token.kind != SyntaxKind.EOF) {
-            token = nextToken()
-            tokens.add(token)
-        }
-
-        return tokens
-    }
-
     fun next() {
         position++
     }
 
-    private fun nextToken(): SyntaxToken<*> {
+    fun nextToken(): SyntaxToken {
         if (position >= line.length) {
             return EofToken(position)
         }

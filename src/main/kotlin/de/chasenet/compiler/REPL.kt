@@ -1,14 +1,37 @@
 package de.chasenet.compiler
 
 fun main() {
+    var showTree = false
+
     while (true) {
         print("> ")
-        val line = readln()
-        val lexer = Lexer(line)
-        println(lexer.parse())
 
-        lexer.diagnostics.forEach {
-            System.err.println(it)
+        when (val line = readln()) {
+            "#showTree" -> {
+                showTree = true
+                println("showing tree")
+            }
+
+            "#hideTree" -> {
+                showTree = false
+                println("hiding tree")
+            }
+
+            "#exit" -> {
+                println("exiting")
+                break
+            }
+
+            else -> {
+                val tree = SyntaxTree.parse(line)
+
+                if (showTree) SyntaxTreePrinter.print(tree)
+
+                tree.diagnostics.forEach {
+                    System.err.println(it)
+                }
+                println()
+            }
         }
     }
 }
