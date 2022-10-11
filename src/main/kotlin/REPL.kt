@@ -93,7 +93,7 @@ class Lexer(private val line: String) {
 abstract class SyntaxToken<T>(
     val start: Int,
     val kind: SyntaxKind,
-    val text: String,
+    private val text: String,
 ) {
     abstract val value: T?
 
