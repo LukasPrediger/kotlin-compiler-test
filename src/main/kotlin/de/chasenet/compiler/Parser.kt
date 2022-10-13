@@ -1,5 +1,7 @@
 package de.chasenet.compiler
 
+import de.chasenet.compiler.SyntaxKind.*
+
 class Parser(private val line: String) {
     private val mutableDiagnostics: MutableList<String> = mutableListOf()
 
@@ -17,10 +19,10 @@ class Parser(private val line: String) {
         lateinit var token: SyntaxToken
         do {
             token = lexer.nextToken()
-            if (token.kind != SyntaxKind.BadToken && token.kind != SyntaxKind.WhiteSpaceToken) {
+            if (token.kind != BadToken && token.kind != WhiteSpaceToken) {
                 mutableTokens.add(token)
             }
-        } while (token.kind != SyntaxKind.EOF)
+        } while (token.kind != EOF)
 
         mutableDiagnostics.addAll(lexer.diagnostics)
 
@@ -46,36 +48,41 @@ class Parser(private val line: String) {
         return SyntaxToken(current.position, kind, "")
     }
 
-    fun parse(): SyntaxTree = SyntaxTree(diagnostics, parseExpression(), match(SyntaxKind.EOF))
+    fun parse(): SyntaxTree = SyntaxTree(diagnostics, parseExpression(), match(EOF))
 
-    private fun parseExpression(): ExpressionSyntax {
-        var left: ExpressionSyntax = parsePrimaryExpression()
-        while (
-            current.kind in listOf(
-                SyntaxKind.PlusToken,
-                SyntaxKind.MinusToken,
-                SyntaxKind.StarToken,
-                SyntaxKind.SlashToken
-            )
-        ) {
-            val operatorToken = nextToken()
-            val right = parsePrimaryExpression()
-            left = BinaryExpressionSyntax(left, operatorToken, right)
+    private fun parseExpression(): ExpressionSyntax = parseTerm()
+
+    private fun parseTerm(): ExpressionSyntax {
+        var left = parseFactor()
+        while(current.kind in listOf(PlusToken, MinusToken)) {
+            val operator = nextToken()
+            val right = parseFactor()
+            left = BinaryExpressionSyntax(left, operator, right)
         }
+        return left
+    }
 
+    private fun parseFactor(): ExpressionSyntax {
+        var left = parsePrimaryExpression()
+
+        while(current.kind in listOf(StarToken, SlashToken)) {
+            val operator = nextToken()
+            val right = parsePrimaryExpression()
+            left = BinaryExpressionSyntax(left, operator, right)
+        }
         return left
     }
 
     private fun parsePrimaryExpression(): ExpressionSyntax {
-        if (current.kind == SyntaxKind.OpenParenthesis) {
+        if (current.kind == OpenParenthesis) {
             return ParenthesisedExpression(
                 openParenthesisToken = nextToken(),
                 expression = parseExpression(),
-                closedParenthesisToken = match(SyntaxKind.ClosedParenthesis)
+                closedParenthesisToken = match(ClosedParenthesis)
             )
         }
 
-        return NumberExpressionSyntax(match(SyntaxKind.NumberToken))
+        return NumberExpressionSyntax(match(NumberToken))
     }
 }
 
@@ -88,7 +95,7 @@ abstract class SyntaxNode {
 abstract class ExpressionSyntax : SyntaxNode()
 
 class NumberExpressionSyntax(val numberToken: SyntaxToken) : ExpressionSyntax() {
-    override val kind: SyntaxKind = SyntaxKind.NumberExpression
+    override val kind: SyntaxKind = NumberExpression
 
     override val children: List<SyntaxNode> = listOf(numberToken)
 }
@@ -98,7 +105,7 @@ class ParenthesisedExpression(
     val expression: ExpressionSyntax,
     val closedParenthesisToken: SyntaxToken
 ) : ExpressionSyntax() {
-    override val kind: SyntaxKind = SyntaxKind.ParenthesisedExpression
+    override val kind: SyntaxKind = ParenthesisedExpression
 
     override val children: List<SyntaxNode> = listOf(openParenthesisToken, expression, closedParenthesisToken)
 }
@@ -108,7 +115,7 @@ class BinaryExpressionSyntax(
     val operator: SyntaxToken,
     val right: ExpressionSyntax
 ) : ExpressionSyntax() {
-    override val kind: SyntaxKind = SyntaxKind.BinaryExpression
+    override val kind: SyntaxKind = BinaryExpression
 
     override val children: List<SyntaxNode> = listOf(left, operator, right)
 }
