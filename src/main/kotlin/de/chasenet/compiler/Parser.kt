@@ -49,7 +49,7 @@ class Parser(private val line: String) {
     fun parse(): SyntaxTree = SyntaxTree(diagnostics, parseExpression(), match(SyntaxKind.EOF))
 
     private fun parseExpression(): ExpressionSyntax {
-        var left: ExpressionSyntax = parseNumberExpression()
+        var left: ExpressionSyntax = parsePrimaryExpression()
         while (
             current.kind in listOf(
                 SyntaxKind.PlusToken,
@@ -59,14 +59,24 @@ class Parser(private val line: String) {
             )
         ) {
             val operatorToken = nextToken()
-            val right = parseNumberExpression()
+            val right = parsePrimaryExpression()
             left = BinaryExpressionSyntax(left, operatorToken, right)
         }
 
         return left
     }
 
-    private fun parseNumberExpression(): NumberExpressionSyntax = NumberExpressionSyntax(match(SyntaxKind.NumberToken))
+    private fun parsePrimaryExpression(): ExpressionSyntax {
+        if (current.kind == SyntaxKind.OpenParenthesis) {
+            return ParenthesisedExpression(
+                openParenthesisToken = nextToken(),
+                expression = parseExpression(),
+                closedParenthesisToken = match(SyntaxKind.ClosedParenthesis)
+            )
+        }
+
+        return NumberExpressionSyntax(match(SyntaxKind.NumberToken))
+    }
 }
 
 abstract class SyntaxNode {
@@ -81,6 +91,16 @@ class NumberExpressionSyntax(val numberToken: SyntaxToken) : ExpressionSyntax() 
     override val kind: SyntaxKind = SyntaxKind.NumberExpression
 
     override val children: List<SyntaxNode> = listOf(numberToken)
+}
+
+class ParenthesisedExpression(
+    val openParenthesisToken: SyntaxToken,
+    val expression: ExpressionSyntax,
+    val closedParenthesisToken: SyntaxToken
+) : ExpressionSyntax() {
+    override val kind: SyntaxKind = SyntaxKind.ParenthesisedExpression
+
+    override val children: List<SyntaxNode> = listOf(openParenthesisToken, expression, closedParenthesisToken)
 }
 
 class BinaryExpressionSyntax(

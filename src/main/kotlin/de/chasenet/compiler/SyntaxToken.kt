@@ -17,18 +17,14 @@ class NumberToken(start: Int, text: String) :
     override val value: Int = text.toInt()
 }
 
-class EofToken(start: Int) : SyntaxToken(start, SyntaxKind.EOF, "") {
-    override val value: Unit = Unit
-}
+sealed class TextToken(start: Int, kind: SyntaxKind, text: String) : SyntaxToken(start, kind, text) {
+    override val value: Any = text
 
-class WhitespaceToken(start: Int, text: String) :
-    SyntaxToken(start, SyntaxKind.WhiteSpaceToken, text) {
-    override val value: String = text
-}
-
-class BadToken(start: Int, text: String) :
-    SyntaxToken(start, SyntaxKind.BadToken, text) {
-    override val value: String = text
+    class WhitespaceToken(start: Int, text: String) : TextToken(start, SyntaxKind.WhiteSpaceToken, text)
+    class BadToken(start: Int, text: String) : TextToken(start, SyntaxKind.BadToken, text)
+    class EofToken(start: Int) : TextToken(start, SyntaxKind.EOF, "")
+    class OpenParenthesisToken(start: Int): TextToken(start, SyntaxKind.OpenParenthesis, "(")
+    class ClosedParenthesisToken(start: Int): TextToken(start, SyntaxKind.ClosedParenthesis, ")")
 }
 
 sealed class OperatorToken(start: Int, kind: SyntaxKind, text: String) : SyntaxToken(start, kind, text) {

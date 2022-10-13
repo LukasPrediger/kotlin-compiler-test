@@ -18,6 +18,7 @@ object Evaluator {
                     else -> throw Exception("Unexpected binary operator ${node.operator.kind}")
                 }
             }
+            is ParenthesisedExpression -> evaluateExpression(node.expression)
 
             else -> throw Exception("Unexpected node ${node.kind}")
         }

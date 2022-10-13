@@ -1,5 +1,7 @@
 package de.chasenet.compiler
 
+import de.chasenet.compiler.TextToken.*
+
 class Lexer(private val line: String) {
     private var position = 0
 
@@ -33,6 +35,8 @@ class Lexer(private val line: String) {
                 '-' -> OperatorToken.MinusToken(position)
                 '*' -> OperatorToken.StarToken(position)
                 '/' -> OperatorToken.SlashToken(position)
+                '(' -> OpenParenthesisToken(position)
+                ')' -> ClosedParenthesisToken(position)
                 else -> {
                     mutableDiagnostics.add("ERROR: bad input character: $current")
                     BadToken(position, line[position].toString())
