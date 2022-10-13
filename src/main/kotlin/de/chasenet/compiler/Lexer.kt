@@ -22,10 +22,10 @@ class Lexer(private val line: String) {
             return EofToken(position)
         }
 
-        if (isDigit(current)) {
+        if (current.isDigit()) {
             return parseNumberToken()
         }
-        if (isWhitespace(current)) {
+        if (current.isWhitespace()) {
             return parseWhiteSpaceToken()
         }
 
@@ -53,7 +53,7 @@ class Lexer(private val line: String) {
 
     private fun parseNumberToken(): NumberToken {
         val start = position
-        while (isDigit(current)) next()
+        while (current.isDigit()) next()
 
         val length = position - start
         return NumberToken(start, line.substring(start, start + length))
@@ -62,7 +62,7 @@ class Lexer(private val line: String) {
     private fun parseWhiteSpaceToken(): WhitespaceToken {
         val start = position
 
-        while (isWhitespace(current)) next()
+        while (current.isWhitespace()) next()
 
         val length = position - start
         val text = line.substring(start, start + length)

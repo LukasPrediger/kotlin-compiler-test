@@ -1,5 +1,4 @@
 package de.chasenet.compiler
 
-fun isDigit(char: Char?): Boolean = char?.isDigit() ?: false
-
-fun isWhitespace(char: Char?): Boolean = char?.isWhitespace() ?: false
+fun Char?.isDigit(): Boolean = this?.let(Character::isDigit) ?: false
+fun Char?.isWhitespace(): Boolean = this?.let(Character::isWhitespace) ?: false
