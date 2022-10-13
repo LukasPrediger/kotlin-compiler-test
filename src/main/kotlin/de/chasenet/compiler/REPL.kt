@@ -30,6 +30,11 @@ fun main() {
                 tree.diagnostics.forEach {
                     System.err.println(it)
                 }
+
+                tree.diagnostics.ifEmpty {
+                    println(Evaluator.evaluate(tree))
+                }
+
                 println()
             }
         }
